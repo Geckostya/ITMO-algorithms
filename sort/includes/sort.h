@@ -5,14 +5,15 @@
 #include <algorithm>
 
 namespace myalg {
-    const int INSERTION_SORT_LENGTH = 5;
+    bool use_insertion_sort = true;
+    const int INSERTION_SORT_LENGTH = 11;
 
     template<typename T, typename Compare>
     void partition(T *&first, T *&last, T m, Compare comp) {
-        while (first <= last) {
+        while (first < last) {
             while (comp(*first, m)) first++;
-            while (comp(m, *last)) last--;
-            if (first <= last) std::iter_swap(first++, last--);
+            while (comp(m, *(last - 1))) last--;
+            if (first < last) std::iter_swap(first++, --last);
         }
     }
 
@@ -36,12 +37,12 @@ namespace myalg {
         while (first < last) {
             int n = static_cast<int>(last - first);
 
-            if (n <= INSERTION_SORT_LENGTH) {
+            if (use_insertion_sort && n <= INSERTION_SORT_LENGTH) {
                 insertion_sort(first, last, comp);
                 return;
             }
 
-            T a0 = *first, a1 = *last, a2 = *(first + n / 2);
+            T a0 = *first, a1 = *(last - 1), a2 = *(first + n / 2);
             sort3(a0, a1, a2, comp);
 
             T *f = first, *l = last;
