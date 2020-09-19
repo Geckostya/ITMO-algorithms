@@ -171,7 +171,7 @@ TEST(quick_sort, random_performance_test) {
         for (int i = 0; i < N; i++) {
             a[i] = int_rand();
         }
-        auto start = std::chrono::system_clock::now();
+        auto start = std::chrono::high_resolution_clock::now();
         myalg::sort(a, a + N, LESS);
         auto end = std::chrono::high_resolution_clock::now();
         time += (end - start).count();
