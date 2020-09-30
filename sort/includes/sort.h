@@ -11,8 +11,8 @@ namespace myalg {
     template<typename T, typename Compare>
     void partition(T *&first, T *&last, T m, Compare comp) {
         while (first < last) {
-            while (comp(*first, m)) first++;
-            while (comp(m, *(last - 1))) last--;
+            while (comp(*first, m) && !comp(m, *first)) first++;
+            while (comp(m, *(last - 1)) && !comp(*(last - 1), m)) last--;
             if (first < last) std::iter_swap(first++, --last);
         }
     }

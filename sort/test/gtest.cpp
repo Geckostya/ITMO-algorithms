@@ -7,13 +7,13 @@
 #define INT_SORT_TEST(testName) template<typename Compare> void testName(void (*sort_function)(int*, int*, Compare), Compare comp)
 
 #define LESS [](int a, int b) { return a < b; }
-#define GREATER [](int a, int b) { return a > b; }
+#define GREATER_EQ [](int a, int b) { return a >= b; }
 
 
 template<typename T, typename Compare>
 void test_sorted( T *first, T *last, Compare comp) {
     for (T *i = first; first < last - 1; first++) {
-        EXPECT_FALSE(comp(*(i + 1), *i));
+        EXPECT_TRUE(comp(*i, *(i + 1)) || !comp(*(i + 1), *i));
     }
 }
 
@@ -85,22 +85,22 @@ TEST(insertion_sort, test_empty) {
 
 TEST(insertion_sort, test_sort_one) {
     test_sort_one(myalg::insertion_sort, LESS);
-    test_sort_one(myalg::insertion_sort, GREATER);
+    test_sort_one(myalg::insertion_sort, GREATER_EQ);
 }
 
 TEST(insertion_sort, test_sort_two) {
     test_sort_two(myalg::insertion_sort, LESS);
-    test_sort_two(myalg::insertion_sort, GREATER);
+    test_sort_two(myalg::insertion_sort, GREATER_EQ);
 }
 
 TEST(insertion_sort, test_sort_six) {
     test_sort_six(myalg::insertion_sort, LESS);
-    test_sort_six(myalg::insertion_sort, GREATER);
+    test_sort_six(myalg::insertion_sort, GREATER_EQ);
 }
 
 TEST(insertion_sort, test_sort_six_with_duplicates) {
     test_sort_six_with_duplicates(myalg::insertion_sort, LESS);
-    test_sort_six_with_duplicates(myalg::insertion_sort, GREATER);
+    test_sort_six_with_duplicates(myalg::insertion_sort, GREATER_EQ);
 }
 
 
@@ -114,28 +114,28 @@ TEST(quick_sort, test_empty) {
 TEST(quick_sort, tst_sort_one) {
     myalg::use_insertion_sort = false;
     test_sort_one(myalg::sort, LESS);
-    test_sort_one(myalg::sort, GREATER);
+    test_sort_one(myalg::sort, GREATER_EQ);
     myalg::use_insertion_sort = true;
 }
 
 TEST(quick_sort, test_sort_two) {
     myalg::use_insertion_sort = false;
     test_sort_two(myalg::sort, LESS);
-    test_sort_two(myalg::sort, GREATER);
+    test_sort_two(myalg::sort, GREATER_EQ);
     myalg::use_insertion_sort = true;
 }
 
 TEST(quick_sort, test_sort_six) {
     myalg::use_insertion_sort = false;
     test_sort_six(myalg::sort, LESS);
-    test_sort_six(myalg::sort, GREATER);
+    test_sort_six(myalg::sort, GREATER_EQ);
     myalg::use_insertion_sort = true;
 }
 
 TEST(quick_sort, test_sort_six_with_duplicates) {
     myalg::use_insertion_sort = false;
     test_sort_six_with_duplicates(myalg::sort, LESS);
-    test_sort_six_with_duplicates(myalg::sort, GREATER);
+    test_sort_six_with_duplicates(myalg::sort, GREATER_EQ);
     myalg::use_insertion_sort = true;
 }
 
@@ -152,7 +152,7 @@ TEST(quick_sort, random_test) {
         a[i] = int_rand();
         b[i] = a[i];
     }
-    test_sorting(myalg::sort, a, a + N, LESS);
+    test_sorting(myalg::sort, a, a + N, int_rand() % 2 ? LESS : GREATER_EQ);
     test_have_all_once(a, b, N, -1);
 
     delete[] a;
