@@ -144,16 +144,28 @@ namespace myalg {
                 list->_size++;
             }
 
+            /*
+             * Удаляет элемент в позиции итератора, смещает все элементы справа от него на одну позицию влево
+             * Если справа от итератора не было элементов - сдвигает позицию итератора на последний элемент
+             */
             void remove() {
                 _node->data.remove(_index);
                 list->_size--;
-                if (_node->isEmpty() || _index >= _node->data.size()) {
-                    Node *prev = _node;
-                    _node = _node->next;
-                    _index = 0;
-                    if (prev->isEmpty() && !prev->isTail()) {
-                        if (prev->isHead()) list->_head = _node;
-                        delete prev;
+                while (_node->isEmpty()) {
+                    if (_node->isTail() && !_node->isHead()) {
+                        list->_tail = _node->prev;
+                        delete _node;
+                        _node = list->_tail;
+                        _node->next = _node;
+                        _index = _node->data.last();
+                    }
+                }
+                if (_index >= _node->data.size()) {
+                    if (!_node->isTail()) {
+                        _node = _node->next;
+                        _index = 0;
+                    } else {
+                        _index = _node->data.last();
                     }
                 }
             }

@@ -151,3 +151,85 @@ TEST(list, stressTest) {
         }
     }
 }
+
+TEST(list, iterNext) {
+    List<int> list;
+    for (int i = 0; i < 10; i++) {
+        list.insertTail(i * 3 + 2);
+    }
+    int i = 0;
+    for (auto it = list.iterator(); it.hasNext(); it.next(), i++) {
+        ASSERT_EQ(it.get(), i * 3 + 2);
+    }
+    ASSERT_EQ(9, i);
+
+    i = 0;
+    for (auto it = list.iterator(); !it.isOutOfRange(); it.next(), i++) {
+        ASSERT_EQ(it.get(), i * 3 + 2);
+    }
+    ASSERT_EQ(10, i);
+}
+
+TEST(list, iterInsert) {
+    List<int> list;
+    auto it = list.iterator();
+    it.insert(4);
+    it.insert(1);
+    it.insert(0);
+    it.next();
+    it.next();
+    it.insert(3);
+    it.insert(2);
+    ASSERT_EQ(list.size(), 5);
+    int i = 0;
+    for (auto it2 = list.iterator(); !it2.isOutOfRange(); it2.next(), i++) {
+        ASSERT_EQ(it2.get(), i);
+    }
+}
+
+TEST(list, iterRemove) {
+    List<int> list;
+    for (int i = 0; i < 5; i++) {
+        list.insertTail(i);
+    }
+    auto it = list.iterator();
+    it.remove();
+    ASSERT_EQ(4, list.size());
+    int i = 0;
+    for (auto it2 = list.iterator(); !it2.isOutOfRange(); it2.next(), i++) {
+        ASSERT_EQ(it2.get(), i + 1);
+    }
+    it.next();
+    it.remove();
+    ASSERT_EQ(1, list.head());
+    i = 1;
+    auto it2 = list.iterator();
+    it2.next();
+    for (; !it2.isOutOfRange(); it2.next(), i++) {
+        ASSERT_EQ(it2.get(), i + 2);
+    }
+}
+
+TEST(list, iterRemoveEnd) {
+    List<int> list;
+    for (int i = 0; i < 6; i++) {
+        list.insertTail(i);
+    }
+    auto it = list.iterator();
+    for (; it.hasNext(); it.next()) {}
+    ASSERT_EQ(6, list.size());
+    ASSERT_EQ(5, list.tail());
+    ASSERT_EQ(5, it.get());
+    it.remove();
+    ASSERT_EQ(5, list.size());
+    ASSERT_EQ(4, list.tail());
+    ASSERT_EQ(4, it.get());
+    it.remove();
+    ASSERT_EQ(4, list.size());
+    ASSERT_EQ(3, list.tail());
+    ASSERT_EQ(3, it.get());
+    it.remove();
+    ASSERT_EQ(3, list.size());
+    ASSERT_EQ(2, list.tail());
+    ASSERT_EQ(2, it.get());
+}
