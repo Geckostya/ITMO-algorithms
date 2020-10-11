@@ -35,7 +35,7 @@ namespace myalg {
     template<typename T, typename Compare>
     void sort(T *first, T *last, Compare comp) {
         while (first < last) {
-            int n = static_cast<int>(last - first);
+            int n = last - first;
 
             if (use_insertion_sort && n <= INSERTION_SORT_LENGTH) {
                 insertion_sort(first, last, comp);
@@ -48,7 +48,7 @@ namespace myalg {
             T *f = first, *l = last;
             partition(f, l, a1, comp);
 
-            if (static_cast<int>(l - first) < static_cast<int>(last - f)) {
+            if (l - first < last - f) {
                 std::swap(first, f);
             } else {
                 std::swap(last, l);

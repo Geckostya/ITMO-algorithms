@@ -1,3 +1,6 @@
 [submodule "sort/googletest"]
 	path = sort/googletest
 	url = https://github.com/google/googletest
+[submodule "array-and-list/googletest"]
+	path = array-and-list/googletest
+	url = https://github.com/google/googletest

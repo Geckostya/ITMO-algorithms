@@ -11,7 +11,7 @@
 
 
 template<typename T, typename Compare>
-void test_sorted( T *first, T *last, Compare comp) {
+void test_sorted(T *first, T *last, Compare comp) {
     for (T *i = first; first < last - 1; first++) {
         EXPECT_TRUE(comp(*i, *(i + 1)) || !comp(*(i + 1), *i));
     }
