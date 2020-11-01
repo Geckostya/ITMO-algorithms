@@ -4,3 +4,6 @@
 [submodule "array-and-list/googletest"]
 	path = array-and-list/googletest
 	url = https://github.com/google/googletest
+[submodule "tree/googletest"]
+	path = tree/googletest
+	url = https://github.com/google/googletest
