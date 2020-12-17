@@ -41,14 +41,12 @@ TEST(avl, operatorGet) {
 
 TEST(avl, operatorSet) {
     myalg::Dictionary<int, int> l{};
-    const auto& cl = l;
     l[1] = 5;
     l[2] = 10;
     l[3] = 15;
     ASSERT_EQ(5, l[1]);
     ASSERT_EQ(10, l[2]);
     ASSERT_EQ(15, l[3]);
-    ASSERT_EQ(15, cl.at(3));
 }
 
 TEST(avl, delRoot1) {

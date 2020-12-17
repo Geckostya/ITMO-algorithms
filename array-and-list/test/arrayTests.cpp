@@ -6,6 +6,8 @@ using namespace myalg;
 TEST(array, testInit) {
     Array<int> arr;
     Array<int> arr2(1123);
+    ASSERT_EQ(0, arr.size());
+    ASSERT_EQ(0, arr2.size());
 }
 
 TEST(array, insertSimpleTest) {

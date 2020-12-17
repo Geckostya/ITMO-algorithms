@@ -71,17 +71,6 @@ TEST(list, removeTail) {
     ASSERT_EQ(list.size(), 0);
 }
 
-
-TEST(list, testRemove) { //TODO
-    List<int> list;
-    list.insertTail(14);
-    list.insertHead(84);
-    list.insertHead(40);
-    list.insertTail(95);
-    list.insertTail(10);
-    list.removeTail();
-}
-
 TEST(list, stressTest) {
     bool verbose = false;
     bool printAll = false;
