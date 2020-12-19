@@ -7,6 +7,10 @@
 #include <algorithm>
 #include <random>
 
+#ifdef DEBUF
+//#define COUT
+#endif
+
 void testInitDestroy(AbstractAllocator &a) {
     a.init();
     a.destroy();
@@ -116,7 +120,7 @@ void testRandomAllocations(AbstractAllocator &a) {
     std::vector<int> sizes;
     std::vector<int> inds;
     a.init();
-    int iter = 40000;
+    int iter = 20000;
     size_t maxSize = std::min((size_t)1024, a.maxAllocSize());
 
     // fill memory with 2 iter objects
@@ -129,6 +133,11 @@ void testRandomAllocations(AbstractAllocator &a) {
         inds.push_back(i);
     }
 
+#ifdef COUT
+    a.dumpBlock();
+    a.dumpStat();
+#endif
+
     std::mt19937 g(0x241251);
 
     std::shuffle(inds.begin(), inds.end(), g);
@@ -140,6 +149,11 @@ void testRandomAllocations(AbstractAllocator &a) {
         a.free(objs[id]);
     }
 
+#ifdef COUT
+    a.dumpBlock();
+    a.dumpStat();
+#endif
+
     // add another 1 iter objects
     for (int i = 2 * iter; i < 3 * iter; i++) {
         int size = rand() % maxSize;
@@ -149,6 +163,11 @@ void testRandomAllocations(AbstractAllocator &a) {
         sizes.push_back(size);
         inds.push_back(i);
     }
+
+#ifdef COUT
+    a.dumpBlock();
+    a.dumpStat();
+#endif
 
     // free all
     for (int i = iter; i < 3 * iter; i++) {

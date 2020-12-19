@@ -5,6 +5,10 @@
 #ifndef ALLOCATOR_COALESCEALLOCATOR_H
 #define ALLOCATOR_COALESCEALLOCATOR_H
 
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 class CoalesceAllocator : public AbstractAllocator {
 private:
     static const size_t LEFT_CONSUMED = 1 << 30;
@@ -123,6 +127,11 @@ private:
     MemPage *mem = nullptr;
     FreeBlock *freeBlocksHead = nullptr;
 
+#ifdef DEBUG
+    size_t blocksCount = 0;
+    size_t consumed_memory = 0;
+#endif
+
 private:
     inline FreeBlock *firstBlock() {
         return reinterpret_cast<FreeBlock *>(mem + 1);
@@ -165,8 +174,13 @@ public:
         newPage();
     }
 
+
     void destroy() override final {
         assert(mem != nullptr);
+#ifdef DEBUG
+        blocksCount = 0;
+        consumed_memory = 0;
+#endif
         MemPage *tmp;
         do {
 #ifdef DEBUG
@@ -179,6 +193,7 @@ public:
         } while (mem != nullptr);
     }
 
+
     void *alloc(size_t size) override {
         assert(mem != nullptr);
         size += sizeof(Block);
@@ -186,6 +201,10 @@ public:
             size = MIN_SIZE;
         }
         assert(size <= DATA_SIZE);
+#ifdef DEBUG
+        blocksCount++;
+        consumed_memory += size;
+#endif
         FreeBlock *freeBlock = findFreeBlock(size);
         if (freeBlock == nullptr) {
             newPage();
@@ -195,6 +214,7 @@ public:
         return freeBlock->takeBlock(size, &freeBlocksHead)->userData();
     }
 
+
     void free(void *p) override {
         assert(mem != nullptr);
 #ifdef DEBUG
@@ -202,8 +222,10 @@ public:
 #endif
         Block *block = reinterpret_cast<Block *>(toByte(p) - sizeof(size_t));
 #ifdef DEBUG
-        assert(hasFlag(block->flaggedSize, IS_CONSUMED));
+        blocksCount--;
+        consumed_memory -= getValue(block->flaggedSize);
 #endif
+        assert(hasFlag(block->flaggedSize, IS_CONSUMED));
         FreeBlock *freeBlock = reinterpret_cast<FreeBlock *>(block);
         freeBlock->setSize(getValue(block->flaggedSize), getFlag(block->flaggedSize, LEFT_CONSUMED));
         freeBlock->prev = nullptr;
@@ -229,11 +251,33 @@ public:
 #ifdef DEBUG
 
     void dumpStat() const override {
+        int freeCount;
+        for (FreeBlock *block = freeBlocksHead; block != nullptr; block = block->next) {
+            freeCount++;
+        }
+        std::cout << "Consumed blocks: " << blocksCount << "; Free blocks: " << freeCount << std::endl;
 
+        int pageCount;
+        for (MemPage *page = mem; page != nullptr; page = page->nextPage) {
+            pageCount++;
+        }
+        std::cout << "Memory consumed: " << consumed_memory << " / " << pageCount * DATA_SIZE << std::endl;
+        std::cout << "Consumed OS blocks: " << pageCount << std::endl;
+        for (MemPage *page = mem; page != nullptr; page = page->nextPage) {
+            std::cout << "page " << (void *) page << ' ' << PAGE_SIZE << std::endl;
+        }
     }
 
     void dumpBlock() const override {
-
+        for (MemPage *page = mem; page != nullptr; page = page->nextPage) {
+            FreeBlock *block = reinterpret_cast<FreeBlock *>(page + 1);
+            while (toByte(block) < toByte(page + 1) + DATA_SIZE) {
+                if (hasFlag(block->flaggedSize, IS_CONSUMED)) {
+                    std::cout << (void *) block << ' ' << getValue(block->flaggedSize) << std::endl;
+                }
+                block = reinterpret_cast<FreeBlock *>(block->shiftRight(getValue(block->flaggedSize)));
+            }
+        }
     }
 
 #endif
