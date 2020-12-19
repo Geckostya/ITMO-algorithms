@@ -88,9 +88,6 @@ private:
                 newBlock->value = 0x5afe;
 #endif
                 next = newBlock;
-                if (reinterpret_cast<long>(next) == 0x1716151413121110) {
-                    int a = 2;
-                }
             } else {
                 blockSize = getValue(flaggedSize);
             }
@@ -148,9 +145,6 @@ private:
 
     FreeBlock *findFreeBlock(size_t size) {
         for (FreeBlock *block = freeBlocksHead; block != nullptr; block = block->next) {
-            if ((size_t)block->next > 0x1000000000000000) {
-                block->next = block->next;
-            }
             if (getValue(block->flaggedSize) >= size) {
                 return block;
             }

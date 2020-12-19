@@ -116,7 +116,7 @@ void testRandomAllocations(AbstractAllocator &a) {
     std::vector<int> sizes;
     std::vector<int> inds;
     a.init();
-    int iter = 20000;
+    int iter = 40000;
     size_t maxSize = std::min((size_t)1024, a.maxAllocSize());
 
     // fill memory with 2 iter objects
