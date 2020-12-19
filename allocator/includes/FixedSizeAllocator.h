@@ -21,11 +21,7 @@ private:
         MemPage *nextPage;
     };
 
-#ifdef DEBUG
-    static const size_t DATA_SIZE = 1 << 10;
-#else
     static const size_t DATA_SIZE = 1 << 23;
-#endif
     static const size_t PAGE_SIZE = DATA_SIZE + sizeof(MemPage);
 
 private:
@@ -81,7 +77,7 @@ public:
         do {
 #ifdef DEBUG
             byte *end = toByte(getBlock(initializedBlocks));
-            for (Block *block = firstBlock(); toByte(block) < end; block++) {
+            for (Block *block = firstBlock(); toByte(block) < end; block = reinterpret_cast<Block *>(toByte(block) + blockSize)) {
                 assert(block->value == 0x5afe);
             }
             initializedBlocks = DATA_SIZE / blockSize;
@@ -94,7 +90,7 @@ public:
 
     void *alloc(size_t size) override {
         assert(mem != nullptr);
-        assert(size < blockSize);
+        assert(size <= blockSize);
         if (freeBlocksHead == nullptr) {
             newPage();
         }
@@ -116,16 +112,7 @@ public:
 
     void free(void *p) override {
 #ifdef DEBUG
-        bool foundPage = false;
-        for (MemPage *page = mem; !foundPage && page != nullptr; page = page->nextPage) {
-            bool inPage = toByte(page) < toByte(p) && toByte(p) < toByte(page) + PAGE_SIZE;
-            if (inPage) {
-                bool correctPadding = (toByte(p) - toByte(page + 1)) % blockSize == 0;
-                assert(correctPadding);
-                foundPage |= correctPadding;
-            }
-        }
-        assert(foundPage);
+        assert(isInAllocRange(p));
 #endif
         assert(mem != nullptr);
         Block *block = reinterpret_cast<Block *>(p);
@@ -147,6 +134,22 @@ public:
     }
 
 #endif
+
+
+    bool isInAllocRange(void *p) const override {
+        for (MemPage *page = mem; page != nullptr; page = page->nextPage) {
+            bool inPage = toByte(page) < toByte(p) && toByte(p) < toByte(page) + PAGE_SIZE;
+            if (inPage) {
+                bool correctPadding = (toByte(p) - toByte(page + 1)) % blockSize == 0;
+                return  correctPadding;
+            }
+        }
+        return false;
+    }
+
+    size_t maxAllocSize() const override {
+        return blockSize;
+    }
 };
 
 #endif //ALLOCATOR_FIXEDSIZEALLOCATOR_H

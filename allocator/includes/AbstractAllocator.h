@@ -30,6 +30,10 @@ public:
     virtual void dumpBlock() const = 0;
 
 #endif
+
+    virtual bool isInAllocRange(void *p) const = 0;
+
+    virtual size_t maxAllocSize() const = 0;
 };
 
 #endif //ALLOCATOR_ABSTRACTALLOCATOR_H
