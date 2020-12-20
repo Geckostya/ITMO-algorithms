@@ -251,13 +251,13 @@ public:
 #ifdef DEBUG
 
     void dumpStat() const override {
-        int freeCount;
+        int freeCount = 0;
         for (FreeBlock *block = freeBlocksHead; block != nullptr; block = block->next) {
             freeCount++;
         }
         std::cout << "Consumed blocks: " << blocksCount << "; Free blocks: " << freeCount << std::endl;
 
-        int pageCount;
+        int pageCount = 0;
         for (MemPage *page = mem; page != nullptr; page = page->nextPage) {
             pageCount++;
         }

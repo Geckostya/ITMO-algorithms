@@ -8,6 +8,10 @@
 #include <algorithm> // std::min for windows
 #endif
 
+#ifdef DEBUG
+#include <set>
+#endif
+
 class FixedSizeAllocator : public AbstractAllocator {
 private:
     struct Block {
@@ -28,14 +32,18 @@ private:
     const size_t blockSize;
     MemPage *mem = nullptr;
     Block *freeBlocksHead = nullptr;
-    int initializedBlocks = 0;
+    size_t initializedBlocks = 0;
 
 private:
-    inline Block *getBlock(int i) {
-        return reinterpret_cast<Block *>(toByte(mem + 1) + i * blockSize);
+    inline Block *getBlock(int i, MemPage *page) const {
+        return reinterpret_cast<Block *>(toByte(page + 1) + i * blockSize);
     }
 
-    inline Block *firstBlock() {
+    inline Block *getBlock(int i) const {
+        return getBlock(i, mem);
+    }
+
+    inline Block *firstBlock() const {
         return reinterpret_cast<Block *>(mem + 1);
     }
 
@@ -126,11 +134,40 @@ public:
 #ifdef DEBUG
 
     void dumpStat() const override {
-        // TODO
+        int freeCount = 0;
+        for (Block *block = freeBlocksHead; block != nullptr; block = block->next) {
+            freeCount++;
+        }
+        int pageCount = 0, blocksCount = -freeCount;
+        for (MemPage *page = mem; page != nullptr; page = page->nextPage) {
+            pageCount++;
+            blocksCount += page == mem ? std::min(initializedBlocks, DATA_SIZE / blockSize) : DATA_SIZE / blockSize;
+        }
+        std::cout << "Consumed blocks: " << blocksCount << "; Free blocks: " << freeCount << std::endl;
+
+        std::cout << "Memory consumed: " << blocksCount * blockSize << " / " << pageCount * DATA_SIZE << std::endl;
+        std::cout << "Consumed OS blocks: " << pageCount << std::endl;
+        for (MemPage *page = mem; page != nullptr; page = page->nextPage) {
+            std::cout << "page " << (void *) page << ' ' << PAGE_SIZE << std::endl;
+        }
     }
 
     void dumpBlock() const override {
-        // TODO
+        std::set<Block *> allBlocks;
+        for (MemPage *page = mem; page != nullptr; page = page->nextPage) {
+            size_t size = page == mem ? std::min(initializedBlocks, DATA_SIZE / blockSize) : DATA_SIZE / blockSize;
+            for (int i = 0; i < size; i++) {
+                Block *block = getBlock(i, page);
+                allBlocks.insert(block);
+            }
+        }
+        for (Block *block = freeBlocksHead; block != nullptr; block = block->next) {
+            allBlocks.erase(block);
+        }
+        for (Block *block : allBlocks) {
+            std::cout << (void *) block << ' ' << blockSize << std::endl;
+        }
+
     }
 
 #endif

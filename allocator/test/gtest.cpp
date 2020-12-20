@@ -115,12 +115,11 @@ void checkSeq(byte *&v, int size, int i) {
     }
 }
 
-void testRandomAllocations(AbstractAllocator &a) {
+void testRandomAllocations(AbstractAllocator &a, int iter) {
     std::vector<byte *> objs;
     std::vector<int> sizes;
     std::vector<int> inds;
     a.init();
-    int iter = 20000;
     size_t maxSize = std::min((size_t)1024, a.maxAllocSize());
 
     // fill memory with 2 iter objects
@@ -186,7 +185,7 @@ void testAll(AbstractAllocator &a) {
     testAllocAfterFree(a);
     testAllocLotsInt(a);
     testLotsOfMemory(a);
-    testRandomAllocations(a);
+    testRandomAllocations(a, 20000);
 }
 
 TEST(common_allocators_tests, test_fixed_sized) {
@@ -207,4 +206,9 @@ TEST(common_allocators_tests, test_page) {
 TEST(common_allocators_tests, test_mem_alloc) {
     MemoryAllocator a;
     testAll(a);
+}
+
+TEST(print_test, dump_coalesce) {
+    CoalesceAllocator a;
+    testRandomAllocations(a, 10);
 }
