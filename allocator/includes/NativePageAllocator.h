@@ -21,7 +21,7 @@ void *allocPage(size_t size) {
             PAGE_READWRITE
         );
 #else
-    return malloc(size);
+    return malloc(size); //mmap
 #endif
 }
 

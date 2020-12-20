@@ -15,6 +15,8 @@ inline byte *toByte(void *p) {
 
 class AbstractAllocator {
 public:
+    virtual ~AbstractAllocator() {}
+
     virtual void init() = 0;
 
     virtual void destroy() = 0;
